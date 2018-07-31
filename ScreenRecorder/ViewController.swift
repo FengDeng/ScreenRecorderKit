@@ -13,7 +13,8 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
     func onScreenRecorderProgress(second: CGFloat) {
         print(second)
         DispatchQueue.main.async {
-            self.label.text = "\(second)"
+            
+            self.label.text = String.init(format: "%.2f", second)
         }
     }
     

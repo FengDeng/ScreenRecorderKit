@@ -45,8 +45,8 @@ class RPMicAudioUnitRecorder{
             desc.componentFlags = 0
             desc.componentFlagsMask = 0
             self.audioUnit = try AUAudioUnit.init(componentDescription: desc)
-            //let format = AVAudioFormat.init(standardFormatWithSampleRate: SampleRate, channels: AVAudioChannelCount(ChannelCount))!
-            //try self.audioUnit?.outputBusses[1].setFormat(format)
+            let format = AVAudioFormat.init(standardFormatWithSampleRate: SampleRate, channels: AVAudioChannelCount(ChannelCount))!
+            try self.audioUnit?.outputBusses[1].setFormat(format)
             self.audioUnit?.isInputEnabled = true
             self.audioUnit?.isOutputEnabled = true
             let callback : AURenderPullInputBlock =  {[weak self]( flags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
@@ -106,7 +106,7 @@ class RPMicAudioUnitRecorder{
         }
         var buffer : CMSampleBuffer? = nil
         var timing = CMSampleTimingInfo.init(duration: CMTimeMake(1, Int32(SampleRate)), presentationTimeStamp: CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000), decodeTimeStamp: kCMTimeInvalid)
-        let status1 = CMSampleBufferCreate(kCFAllocatorDefault, nil, false, nil, nil, format, CMItemCount(2048), 1, &timing, 0, nil, &buffer)
+        let status1 = CMSampleBufferCreate(kCFAllocatorDefault, nil, false, nil, nil, format, CMItemCount(numberOfFrames), 1, &timing, 0, nil, &buffer)
         if status1 != noErr{
             print("创建SampleBuffer:" + status1.description)
         }

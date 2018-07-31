@@ -23,6 +23,7 @@ class RPViewVideoRecorder {
     
     weak var view : UIView?
     weak var delegate : RPViewVideoRecorderDelegate?
+
     func startCapture(view:UIView,delegate:RPViewVideoRecorderDelegate?){
         self.view = view
         self.delegate = delegate
@@ -38,15 +39,11 @@ class RPViewVideoRecorder {
         self.displayLink = nil
     }
     
-    var ready = true
     @objc private func handleDisplayLink(){
         //同步获取view的截图
-        guard ready else{return}
         self.queue.sync {[weak self] in
-            self?.ready = false
             guard let `self` = self else{return}
             if let buffer = self.view?.layer.image()?.pixelBuffer(){
-                self.ready = true
                  self.delegate?.onViewVideoRecorderBuffer(buffer: buffer)
             }
         }
