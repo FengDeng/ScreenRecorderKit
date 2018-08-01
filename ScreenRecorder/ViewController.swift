@@ -10,6 +10,22 @@ import UIKit
 import AVKit
 import Photos
 class ViewController: UIViewController,ScreenRecorderDelegate {
+    func onScreenRecorderGenerateProgress(progress: CGFloat) {
+        DispatchQueue.main.async {
+            self.label.text = String.init(format: "%.2f", progress)
+        }
+    }
+    
+    func onScreenRecorderGenerateCompleted(outFilePath: String) {
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL.init(fileURLWithPath: outFilePath))
+        }, completionHandler: { (success, error) in
+            print(success)
+            print(error)
+            print("保存成功")
+        })
+    }
+    
     func onScreenRecorderProgress(second: CGFloat) {
         print(second)
         DispatchQueue.main.async {
@@ -18,23 +34,10 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         }
     }
     
-    func onScreenRecorderGenerate(outFilePath: String) {
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL.init(fileURLWithPath: outFilePath))
-        }, completionHandler: { (success, error) in
-            print(success)
-            print(error)
-            print("保存成功")
-        })
-        
-    }
     func onScreenRecorderError(error: Error) {
         
     }
-    
-    func onScreenRecorderCompositionChanged(composition: AVMutableComposition) {
-        
-    }
+
     
     let label = UILabel()
     override func viewDidLoad() {
@@ -90,7 +93,7 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         
         let btn7 = UIButton()
         btn7.backgroundColor = UIColor.red
-        btn7.setTitle("降噪关", for: UIControlState.normal)
+        btn7.setTitle("降噪开", for: UIControlState.normal)
         btn7.frame = CGRect.init(x: 200, y: 100, width: 100, height: 100)
         btn7.addTarget(self, action: #selector(echo), for: UIControlEvents.touchUpInside)
         self.view.addSubview(btn7)
@@ -132,8 +135,8 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         } catch  {
             print(error)
         }
-        let composition = ScreenRecorder.default.compositon.copy() as? AVComposition
-        let item = AVPlayerItem.init(asset: composition!)
+        let composition = ScreenRecorder.default.composition
+        let item = AVPlayerItem.init(asset: composition)
         self.player = AVPlayer.init(playerItem: item)
         player?.play()
         let layer = AVPlayerLayer.init(player: player)
@@ -151,8 +154,15 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
     }
     
     @objc func echo(btn:UIButton){
-        useAudioUnit = !useAudioUnit
-        btn.setTitle(useAudioUnit ? "降噪开" : "降噪关", for: UIControlState.normal)
+        if useAudioType == 0{
+            useAudioType = 2
+            btn.setTitle("降噪开", for: UIControlState.normal)
+        }else if useAudioType == 2{
+            useAudioType = 0
+            btn.setTitle("降噪关", for: UIControlState.normal)
+        }
+//        useAudioUnit = !useAudioUnit
+//        btn.setTitle(useAudioUnit ? "降噪开" : "降噪关", for: UIControlState.normal)
     }
     @objc func save(){
         ScreenRecorder.default.generate(outFilePath: NSTemporaryDirectory() + "123.mp4")

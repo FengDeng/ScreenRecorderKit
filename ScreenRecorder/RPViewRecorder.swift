@@ -9,7 +9,7 @@
 import Foundation
 import AVKit
 
-public var useAudioUnit = false
+public var useAudioType = 2 //AVCaptureSession 0 //unit `1 //audiokit 2
 
 enum RPViewBuffer{
     case video(CVPixelBuffer)
@@ -25,25 +25,30 @@ class RPViewRecorder {
     let viewCapture = RPViewVideoRecorder()
     let micCapture = RPMicAudioRecorder()
     let micUnitCapture = RPMicAudioUnitRecorder.init()
+    let micKitCapture = RPMicAudioKitRecorder.init()
     let queue = DispatchQueue.init(label: "com.RPViewRecorder.buffer.queue", qos: DispatchQoS.userInteractive)
     
     var captureHandler: ((RPViewBuffer) -> Swift.Void)?
     func startCapture(view captureView:UIView, captureHandler: ((RPViewBuffer) -> Swift.Void)?){
         self.captureHandler = captureHandler
         self.viewCapture.startCapture(view: captureView, delegate: self)
-        if useAudioUnit{
+        if useAudioType == 0{
+            self.micCapture.startCapture(delegate: self)
+        }else if useAudioType == 1{
             self.micUnitCapture.startCapture(delegate: self)
         }else{
-            self.micCapture.startCapture(delegate: self)
+            self.micKitCapture.startCapture(delegate: self)
         }
     }
     
     func stopCapture(){
         self.viewCapture.stopCapture()
-        if useAudioUnit{
+        if useAudioType == 0{
+            self.micCapture.stopCapture()
+        }else if useAudioType == 1{
             self.micUnitCapture.stopCapture()
         }else{
-            self.micCapture.stopCapture()
+            self.micKitCapture.stopCapture()
         }
     }
     
@@ -68,6 +73,14 @@ extension RPViewRecorder : RPMicAudioRecorderDelegate{
 }
 extension RPViewRecorder : RPMicAudioUnitRecorderDeleagte{
     func onMicAudioUnitRecorderBuffer(buffer: CMSampleBuffer) {
+        self.queue.async {[weak self] in
+            self?.captureHandler?(RPViewBuffer.audio(buffer))
+        }
+    }
+}
+
+extension RPViewRecorder : RPMicAudioKitRecorderDeleagte{
+    func onMicAudioKitRecorderBuffer(buffer: CMSampleBuffer) {
         self.queue.async {[weak self] in
             self?.captureHandler?(RPViewBuffer.audio(buffer))
         }

@@ -14,8 +14,8 @@ protocol RPMicAudioUnitRecorderDeleagte : class {
     func onMicAudioUnitRecorderBuffer(buffer:CMSampleBuffer)
 }
 
-fileprivate let SampleRate : Double = 48000
-fileprivate let ChannelCount = 2
+fileprivate let SampleRate : Double = 44100.0
+fileprivate let ChannelCount = 1
 class RPMicAudioUnitRecorder{
     
     weak var delegate : RPMicAudioUnitRecorderDeleagte?
@@ -28,7 +28,7 @@ class RPMicAudioUnitRecorder{
     func setupAudioSession(){
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord, with: AVAudioSessionCategoryOptions.defaultToSpeaker)
-            try AVAudioSession.sharedInstance().setPreferredSampleRate(SampleRate)
+            try AVAudioSession.sharedInstance().setPreferredSampleRate(48000)
             try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(0.0053)//0.0053
             try AVAudioSession.sharedInstance().setActive(true)
         } catch  {
@@ -44,17 +44,43 @@ class RPMicAudioUnitRecorder{
             desc.componentManufacturer = kAudioUnitManufacturer_Apple
             desc.componentFlags = 0
             desc.componentFlagsMask = 0
-            self.audioUnit = try AUAudioUnit.init(componentDescription: desc)
-            let format = AVAudioFormat.init(standardFormatWithSampleRate: SampleRate, channels: AVAudioChannelCount(ChannelCount))!
-            try self.audioUnit?.outputBusses[1].setFormat(format)
-            self.audioUnit?.isInputEnabled = true
-            self.audioUnit?.isOutputEnabled = true
+            
+
+            
+            
+            
+            self.audioUnit = try AUAudioUnit.init(componentDescription: desc, options: AudioComponentInstantiationOptions())
+            //let hardwareFormat = self.audioUnit!.outputBusses[0].format
+            let format = AVAudioFormat.init(standardFormatWithSampleRate: 48000, channels: 1)!
+            /*
+            for index in 0..<self.audioUnit!.outputBusses.count{
+                let bus = self.audioUnit!.outputBusses[index]
+                try bus.setFormat(format)
+            }*/
+            try self.audioUnit!.outputBusses[1].setFormat(format)
+            
+            /*
+            //mixer unit
+            let mixerDesc = AudioComponentDescription.init(componentType: kAudioUnitType_Mixer, componentSubType: kAudioUnitSubType_MultiChannelMixer, componentManufacturer: kAudioUnitManufacturer_Apple, componentFlags: 0, componentFlagsMask: 0)
+            let mixerAudioUnit = try AUAudioUnit.init(componentDescription: mixerDesc)
+            for index in 0..<mixerAudioUnit.outputBusses.count{
+                let bus = mixerAudioUnit.outputBusses[index]
+                try bus.setFormat(format)
+            }
+            try mixerAudioUnit.outputBusses.setBusCount(2)
+            for index in 0..<mixerAudioUnit.inputBusses.count{
+                let bus = mixerAudioUnit.inputBusses[index]
+                try bus.setFormat(format)
+            }*/
+            
+            //render block
             let callback : AURenderPullInputBlock =  {[weak self]( flags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
                 ts: UnsafePointer<AudioTimeStamp>,
                 fc: AUAudioFrameCount,
                 bus: Int,
                 rawBuff: UnsafeMutablePointer<AudioBufferList>) -> AUAudioUnitStatus
                 in
+                
                 if let render = self?.audioUnit?.renderBlock{
                     let err = render(flags,ts,fc,1,rawBuff,nil)
                     if err == noErr{
@@ -66,6 +92,10 @@ class RPMicAudioUnitRecorder{
                 return noErr
             }
             self.audioUnit?.outputProvider = callback
+            
+            self.audioUnit?.inputHandler = {[weak self] (actionFlags, timestamp, frameCount, inputBusNumber) in
+                print("inputHandler called")
+            }
             try self.audioUnit?.allocateRenderResources()
         } catch  {
             print(error)
@@ -88,7 +118,7 @@ class RPMicAudioUnitRecorder{
     
     lazy var audioFormat : AudioStreamBasicDescription = {
         var format = AudioStreamBasicDescription.init()
-        format.mSampleRate = SampleRate
+        format.mSampleRate = 48000
         format.mFormatID = kAudioFormatLinearPCM
         format.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked | kAudioFormatFlagIsNonInterleaved
         format.mBytesPerPacket = 2
