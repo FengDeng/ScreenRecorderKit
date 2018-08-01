@@ -19,7 +19,7 @@ class RPViewVideoRecorder {
     var displayLink : CADisplayLink?
     var frameInterval = 3 //三帧回调一次
     
-    let queue = DispatchQueue.init(label: "com.RPViewVideoRecorder.buffer.queue", qos: DispatchQoS.userInteractive)
+    let queue = DispatchQueue.init(label: "com.RPViewVideoRecorder.buffer.queue")
     
     weak var view : UIView?
     weak var delegate : RPViewVideoRecorderDelegate?
@@ -41,25 +41,19 @@ class RPViewVideoRecorder {
     
     @objc private func handleDisplayLink(){
         //同步获取view的截图
-        self.queue.sync {[weak self] in
-            guard let `self` = self else{return}
-            if let buffer = self.view?.layer.image()?.pixelBuffer(){
-                 self.delegate?.onViewVideoRecorderBuffer(buffer: buffer)
+        if let layer = self.view?.layer{
+            self.queue.async {[weak self] in
+                guard let `self` = self else{return}
+                if let cgImage = layer.image()?.cgImage{
+                    if let buffer = ImageProcessor.pixelBuffer(forImage: cgImage){
+                        self.delegate?.onViewVideoRecorderBuffer(buffer: buffer)
+                    }
+                }
             }
         }
     }
 }
 
-extension CVPixelBuffer{
-    func sampleBuffer()->CMSampleBuffer?{
-        var newSampleBuffer: CMSampleBuffer? = nil
-        var timimgInfo: CMSampleTimingInfo = kCMTimingInfoInvalid
-        var videoInfo: CMVideoFormatDescription? = nil
-        CMVideoFormatDescriptionCreateForImageBuffer(nil, self, &videoInfo)
-        CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault, self, true, nil, nil, videoInfo!, &timimgInfo, &newSampleBuffer)
-        return newSampleBuffer
-    }
-}
 
 //转化Buffer
 extension CALayer{
@@ -79,62 +73,42 @@ extension CALayer{
     }
 }
 
-extension UIImage {
-    public func pixelBuffer() -> CVPixelBuffer? {
-        return pixelBuffer(width: Int(size.width * UIScreen.main.scale), height: Int(size.height * UIScreen.main.scale))
-    }
-    
-    /**
-     Resizes the image to width x height and converts it to an RGB CVPixelBuffer.
-     */
-    public func pixelBuffer(width: Int, height: Int) -> CVPixelBuffer? {
-        return pixelBuffer(width: width, height: height,
-                           pixelFormatType: kCVPixelFormatType_32ARGB,
-                           colorSpace: CGColorSpaceCreateDeviceRGB(),
-                           alphaInfo: .noneSkipFirst)
-    }
-    
-    /**
-     Resizes the image to width x height and converts it to a grayscale CVPixelBuffer.
-     */
-    public func pixelBufferGray(width: Int, height: Int) -> CVPixelBuffer? {
-        return pixelBuffer(width: width, height: height,
-                           pixelFormatType: kCVPixelFormatType_OneComponent8,
-                           colorSpace: CGColorSpaceCreateDeviceGray(),
-                           alphaInfo: .none)
-    }
-    
-    func pixelBuffer(width: Int, height: Int, pixelFormatType: OSType,
-                     colorSpace: CGColorSpace, alphaInfo: CGImageAlphaInfo) -> CVPixelBuffer? {
-        var maybePixelBuffer: CVPixelBuffer?
-        let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
-                     kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue]
-        let status = CVPixelBufferCreate(kCFAllocatorDefault,
-                                         width,
-                                         height,
-                                         pixelFormatType,
-                                         attrs as CFDictionary,
-                                         &maybePixelBuffer)
+
+//extension CVPixelBuffer{
+//    func sampleBuffer()->CMSampleBuffer?{
+//        var newSampleBuffer: CMSampleBuffer? = nil
+//        var timimgInfo: CMSampleTimingInfo = kCMTimingInfoInvalid
+//        var videoInfo: CMVideoFormatDescription? = nil
+//        CMVideoFormatDescriptionCreateForImageBuffer(nil, self, &videoInfo)
+//        CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault, self, true, nil, nil, videoInfo!, &timimgInfo, &newSampleBuffer)
+//        return newSampleBuffer
+//    }
+//}
+
+struct ImageProcessor {
+    static func pixelBuffer (forImage image:CGImage) -> CVPixelBuffer? {
+        let frameSize = CGSize(width: image.width, height: image.height)
+        var pixelBuffer:CVPixelBuffer? = nil
+        let status = CVPixelBufferCreate(kCFAllocatorDefault, Int(frameSize.width), Int(frameSize.height), kCVPixelFormatType_32BGRA , nil, &pixelBuffer)
         
-        guard status == kCVReturnSuccess, let pixelBuffer = maybePixelBuffer else {
+        if status != kCVReturnSuccess {
             return nil
+            
         }
         
-        CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
-        let pixelData = CVPixelBufferGetBaseAddress(pixelBuffer)
+        CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags.init(rawValue: 0))
+        let data = CVPixelBufferGetBaseAddress(pixelBuffer!)
+        let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(rawValue: CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue)
+        let context = CGContext(data: data, width: Int(frameSize.width), height: Int(frameSize.height), bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer!), space: rgbColorSpace, bitmapInfo: bitmapInfo.rawValue)
         
-        guard let context = CGContext(data: pixelData,
-                                      width: width,
-                                      height: height,
-                                      bitsPerComponent: 8,
-                                      bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
-                                      space: colorSpace,
-                                      bitmapInfo: alphaInfo.rawValue)
-            else {
-                return nil
-        }
-        context.draw(self.cgImage!, in: CGRect(x: 0, y: 0, width: width, height: height))
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        
+        context?.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        
+        CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+        
         return pixelBuffer
+        
     }
+    
 }

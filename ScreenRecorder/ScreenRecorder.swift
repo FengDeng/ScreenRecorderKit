@@ -36,17 +36,23 @@ public class ScreenRecorder{
     public var isRecording : Bool{
         return self._isRecording
     }
+    //最大的录制时长 单位s
+    public var maxDuration : CGFloat = 15
     
     
     
     var paths = [String]() //录制的MP4地址
-    lazy var folder : String = {
-        let documentPaths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory,FileManager.SearchPathDomainMask.userDomainMask, true)
-        return documentPaths[0] + "/ScreenRecorder"
-    }()
     var videoAdaptor : AVAssetWriterInputPixelBufferAdaptor!
-    init() {
+    //以一个地址初始化
+    let folder : String
+    public init(directory : String? = nil) {
         //没有文件夹  新建
+        if let di = directory{
+            self.folder = di + "/ScreenRecorder"
+        }else{
+            let documentPaths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory,FileManager.SearchPathDomainMask.userDomainMask, true)
+            self.folder = documentPaths[0] + "/ScreenRecorder"
+        }
         if !FileManager.default.fileExists(atPath: folder){
             try? FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true, attributes: nil)
         }
@@ -66,8 +72,8 @@ public class ScreenRecorder{
     
     //录制
     var viewRecorder = RPViewRecorder.init()
-    let writeQueue = DispatchQueue.init(label: "com.screen.recorder.writer.queue", qos: DispatchQoS.userInteractive)
-    let queue = DispatchQueue.init(label: "com.screen.recorder.queue", qos: DispatchQoS.userInteractive)
+    let writeQueue = DispatchQueue.init(label: "com.screen.recorder.writer.queue")
+    let queue = DispatchQueue.init(label: "com.screen.recorder.queue")
     var writer : AVAssetWriter?
     private(set) var _isRecording: Bool = false
     lazy var videoInput : AVAssetWriterInput = {
@@ -96,7 +102,7 @@ extension ScreenRecorder{
     //开始录制
     public func start(){
         self.queue.sync {[weak self] in
-            guard let `self` = self,!self._isRecording else{return}
+            guard let `self` = self,!self._isRecording,self.duration < self.maxDuration else{return}
             self._isRecording = true
             //新建文件
             let url = self.folder + "/\(self.paths.count + 1).mp4"
@@ -104,7 +110,7 @@ extension ScreenRecorder{
             print("新建文件：\(url)")
             self.paths.append(url)
             do{
-                 //初始化writer
+                //初始化writer
                 self.writer = try AVAssetWriter.init(url: URL.init(fileURLWithPath: url), fileType: AVFileType.mp4)
                 if self.writer!.canAdd(self.videoInput){
                     self.writer?.add(self.videoInput)
@@ -150,20 +156,24 @@ extension ScreenRecorder{
     }
     
     //暂停录制
-     public func pause(){
+    public func pause(){
         self.queue.sync {[weak self] in
             guard let `self` = self, self._isRecording,self.canReceiveBuffer else{return}
-            self._isRecording = false
-            self.viewRecorder.stopCapture()
-            self.canReceiveBuffer = false
-            let a = CACurrentMediaTime()
-            self.writer?.finishWriting(completionHandler: {[weak self] in
-                //录制好一个文件，写入compostion
-                print("finishWriting耗时:\(CACurrentMediaTime() - a)")
-                print(">>>>>>>>暂停成功")
-                self?.copositionAllFiles()
-            })
+            self._pause()
         }
+    }
+    
+    fileprivate func _pause(){
+        self._isRecording = false
+        self.viewRecorder.stopCapture()
+        self.canReceiveBuffer = false
+        let a = CACurrentMediaTime()
+        self.writer?.finishWriting(completionHandler: {[weak self] in
+            //录制好一个文件，写入compostion
+            print("finishWriting耗时:\(CACurrentMediaTime() - a)")
+            print(">>>>>>>>暂停成功")
+            self?.copositionAllFiles()
+        })
     }
     
     //清除缓存
@@ -218,9 +228,9 @@ extension ScreenRecorder{
         self.writeQueue.sync {[weak self] in
             guard let `self` = self else{return}
             let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000)
-//            if let start = self.startSourceTime{
-//                self.delegate?.onScreenRecorderProgress(second: CGFloat(self._compositon.duration.seconds - start.seconds + now.seconds))
-//            }
+            //            if let start = self.startSourceTime{
+            //                self.delegate?.onScreenRecorderProgress(second: CGFloat(self._compositon.duration.seconds - start.seconds + now.seconds))
+            //            }
             CMSampleBufferSetOutputPresentationTimeStamp(buffer, now)
             self.audioInput.append(buffer)
         }
@@ -231,8 +241,12 @@ extension ScreenRecorder{
             let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000)
             if let start = self.startSourceTime{
                 let time = self._compositon.duration.seconds - start.seconds + now.seconds - CMTimeMake(10, 30).seconds
-                let second = time > 0 ? time : 0
-                self.delegate?.onScreenRecorderProgress(second: CGFloat(second))
+                let second : CGFloat = time > 0 ? CGFloat(time) : 0
+                if second >= self.maxDuration{
+                    self._pause()
+                    return
+                }
+                self.delegate?.onScreenRecorderProgress(second: second)
             }
             self.videoAdaptor.append(buffer, withPresentationTime: now)
         }
@@ -252,7 +266,12 @@ extension ScreenRecorder{
                 print(error)
             }
         }
-        self.delegate?.onScreenRecorderProgress(second: CGFloat(self._compositon.duration.seconds))
+        if self.duration > self.maxDuration{
+            self.delegate?.onScreenRecorderProgress(second: self.maxDuration)
+        }else{
+            self.delegate?.onScreenRecorderProgress(second: CGFloat(self._compositon.duration.seconds))
+        }
+        
     }
     
 }

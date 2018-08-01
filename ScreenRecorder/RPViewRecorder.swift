@@ -26,7 +26,7 @@ class RPViewRecorder {
     let micCapture = RPMicAudioRecorder()
     let micUnitCapture = RPMicAudioUnitRecorder.init()
     let micKitCapture = RPMicAudioKitRecorder.init()
-    let queue = DispatchQueue.init(label: "com.RPViewRecorder.buffer.queue", qos: DispatchQoS.userInteractive)
+    let queue = DispatchQueue.init(label: "com.RPViewRecorder.buffer.queue")
     
     var captureHandler: ((RPViewBuffer) -> Swift.Void)?
     func startCapture(view captureView:UIView, captureHandler: ((RPViewBuffer) -> Swift.Void)?){

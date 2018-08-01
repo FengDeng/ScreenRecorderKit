@@ -105,6 +105,8 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         btn8.addTarget(self, action: #selector(save), for: UIControlEvents.touchUpInside)
         self.view.addSubview(btn8)
         
+        let p = PPTPaint.init(frame: CGRect.init(x: 200, y: 0, width: 300, height: 500))
+        self.view.addSubview(p)
     }
 
     override func didReceiveMemoryWarning() {

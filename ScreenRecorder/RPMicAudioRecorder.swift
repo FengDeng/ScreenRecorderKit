@@ -13,7 +13,7 @@ protocol RPMicAudioRecorderDelegate : class {
     func onMicAudioRecorderBuffer(buffer:CMSampleBuffer)
 }
 class RPMicAudioRecorder : NSObject {
-    let queue = DispatchQueue.init(label: "com.RPMicAudioRecorder.queue", qos: DispatchQoS.background)
+    let queue = DispatchQueue.init(label: "com.RPMicAudioRecorder.queue")
     let session : AVCaptureSession
     weak var delegate : RPMicAudioRecorderDelegate?
     override init() {

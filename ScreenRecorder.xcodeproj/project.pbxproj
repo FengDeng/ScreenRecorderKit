@@ -22,6 +22,7 @@
 		9FAD3A14210ACCB700118F9A /* RPMicAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD3A13210ACCB700118F9A /* RPMicAudioRecorder.swift */; };
 		9FAD3A16210AF37600118F9A /* RPMicAudioUnitRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD3A15210AF37600118F9A /* RPMicAudioUnitRecorder.swift */; };
 		9FAD3A182110833E00118F9A /* RPMicAudioKitRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD3A172110833E00118F9A /* RPMicAudioKitRecorder.swift */; };
+		9FAD3A27211164D400118F9A /* PPTPaint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD3A26211164D400118F9A /* PPTPaint.swift */; };
 		B3457C799A746111BDFCEFEF /* Pods_ScreenRecorderTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE6CD1502512EBF5611AED43 /* Pods_ScreenRecorderTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +70,7 @@
 		9FAD3A13210ACCB700118F9A /* RPMicAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPMicAudioRecorder.swift; sourceTree = "<group>"; };
 		9FAD3A15210AF37600118F9A /* RPMicAudioUnitRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPMicAudioUnitRecorder.swift; sourceTree = "<group>"; };
 		9FAD3A172110833E00118F9A /* RPMicAudioKitRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPMicAudioKitRecorder.swift; sourceTree = "<group>"; };
+		9FAD3A26211164D400118F9A /* PPTPaint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PPTPaint.swift; sourceTree = "<group>"; };
 		BE6CD1502512EBF5611AED43 /* Pods_ScreenRecorderTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ScreenRecorderTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD403774D4BAE47BEC80CDB3 /* Pods-ScreenRecorderUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenRecorderUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScreenRecorderUITests/Pods-ScreenRecorderUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -139,6 +141,7 @@
 		9FAD39DE2109D1F100118F9A /* ScreenRecorder */ = {
 			isa = PBXGroup;
 			children = (
+				9FAD3A26211164D400118F9A /* PPTPaint.swift */,
 				9FAD39DF2109D1F100118F9A /* AppDelegate.swift */,
 				9FAD39E12109D1F100118F9A /* ViewController.swift */,
 				9FAD39E32109D1F100118F9A /* Main.storyboard */,
@@ -381,6 +384,7 @@
 				9FAD3A16210AF37600118F9A /* RPMicAudioUnitRecorder.swift in Sources */,
 				9FAD3A0E2109D22100118F9A /* ScreenRecorder.swift in Sources */,
 				9FAD3A14210ACCB700118F9A /* RPMicAudioRecorder.swift in Sources */,
+				9FAD3A27211164D400118F9A /* PPTPaint.swift in Sources */,
 				9FAD3A12210AC85100118F9A /* RPViewVideoRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
