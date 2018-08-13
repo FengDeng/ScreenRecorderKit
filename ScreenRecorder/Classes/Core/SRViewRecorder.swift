@@ -76,6 +76,7 @@ public class SRViewRecorder{
         self.viewCapture.delegate = self
         self.queue.maxConcurrentOperationCount = 1
         self.setupExsit()
+        SRViewRecorderException.default.append(recorder: self)
     }
 }
 

@@ -129,8 +129,8 @@ class ViewController: UIViewController,SRViewRecorderDelegate {
     @objc func crash(){
 //        let a = [1,2]
 //        let b = a[3]
-//        let a : NSArray = NSArray.init(objects: "1","2")
-//        let c = a[4]
+        let a : NSArray = NSArray.init(objects: "1","2")
+        let c = a[4]
     }
     
     var player : AVPlayer? = nil

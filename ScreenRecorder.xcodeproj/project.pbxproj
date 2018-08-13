@@ -12,6 +12,7 @@
 		9F099042211D2DAB00CE2212 /* SRViewWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F099041211D2DAB00CE2212 /* SRViewWriter.swift */; };
 		9F099044211D405100CE2212 /* SRMicCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F099043211D405100CE2212 /* SRMicCapture.swift */; };
 		9F099046211D420100CE2212 /* SRViewRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F099045211D420100CE2212 /* SRViewRecorder.swift */; };
+		9F1274882121864C00A9DB27 /* SRViewRecorderException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1274872121864C00A9DB27 /* SRViewRecorderException.swift */; };
 		9F37170F211BDD9900AE5665 /* UIView+CVPixelBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F37170E211BDD9900AE5665 /* UIView+CVPixelBuffer.swift */; };
 		9F371712211BE84F00AE5665 /* SRViewCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F371711211BE84F00AE5665 /* SRViewCapture.swift */; };
 		9FAD39E02109D1F100118F9A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD39DF2109D1F100118F9A /* AppDelegate.swift */; };
@@ -53,6 +54,7 @@
 		9F099041211D2DAB00CE2212 /* SRViewWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRViewWriter.swift; sourceTree = "<group>"; };
 		9F099043211D405100CE2212 /* SRMicCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRMicCapture.swift; sourceTree = "<group>"; };
 		9F099045211D420100CE2212 /* SRViewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRViewRecorder.swift; sourceTree = "<group>"; };
+		9F1274872121864C00A9DB27 /* SRViewRecorderException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRViewRecorderException.swift; sourceTree = "<group>"; };
 		9F37170E211BDD9900AE5665 /* UIView+CVPixelBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+CVPixelBuffer.swift"; sourceTree = "<group>"; };
 		9F371711211BE84F00AE5665 /* SRViewCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRViewCapture.swift; sourceTree = "<group>"; };
 		9FAD39DC2109D1F100118F9A /* ScreenRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,6 +140,7 @@
 				9F099043211D405100CE2212 /* SRMicCapture.swift */,
 				9F099045211D420100CE2212 /* SRViewRecorder.swift */,
 				9F099041211D2DAB00CE2212 /* SRViewWriter.swift */,
+				9F1274872121864C00A9DB27 /* SRViewRecorderException.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 				9FAD39E02109D1F100118F9A /* AppDelegate.swift in Sources */,
 				9F099044211D405100CE2212 /* SRMicCapture.swift in Sources */,
 				9F371712211BE84F00AE5665 /* SRViewCapture.swift in Sources */,
+				9F1274882121864C00A9DB27 /* SRViewRecorderException.swift in Sources */,
 				9FAD3A27211164D400118F9A /* PPTPaint.swift in Sources */,
 				9F099042211D2DAB00CE2212 /* SRViewWriter.swift in Sources */,
 			);
