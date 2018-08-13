@@ -19,8 +19,11 @@ class PPTPaint: UIView {
     fileprivate var previousPoint : CGPoint? = nil
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.backgroundColor = UIColor.white
+        
         
     }
+    
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

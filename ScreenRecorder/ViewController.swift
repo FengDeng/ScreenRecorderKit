@@ -9,41 +9,45 @@
 import UIKit
 import AVKit
 import Photos
-class ViewController: UIViewController,ScreenRecorderDelegate {
-    func onScreenRecorderGenerateProgress(progress: CGFloat) {
+import GLKit
+import OpenGLES
+
+
+
+class ViewController: UIViewController,SRViewRecorderDelegate {
+    func onViewRecorderPaused() {
+        print("结束录制")
+    }
+    
+    func onViewRecorderStarted() {
+        print("开始录制")
+    }
+    
+    func onViewRecorderPartsChanged(assets: [AVURLAsset]) {
+        print("分片发生了变化：\(assets.count)")
+    }
+    
+    func onViewRecorderProgressing(seconds: CGFloat) {
         DispatchQueue.main.async {
-            self.label.text = String.init(format: "%.2f", progress)
+            self.label.text = String.init(format: "%.2f", seconds)
         }
     }
     
-    func onScreenRecorderGenerateCompleted(outFilePath: String) {
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL.init(fileURLWithPath: outFilePath))
-        }, completionHandler: { (success, error) in
-            print(success)
-            print(error)
-            print("保存成功")
-        })
-    }
-    
-    func onScreenRecorderProgress(second: CGFloat) {
-        print(second)
-        DispatchQueue.main.async {
-            
-            self.label.text = String.init(format: "%.2f", second)
-        }
-    }
-    
-    func onScreenRecorderError(error: Error) {
+    func onViewRecorderError(error: Error) {
         
     }
+    
 
     
     let label = UILabel()
+    var recorder : SRViewRecorder!
+    var p : PPTPaint!
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.recorder = SRViewRecorder.init(view: self.view!, folderName: "1234")
         // Do any additional setup after loading the view, typically from a nib.
-        ScreenRecorder.default.delegate = self
+        recorder.delegate = self
+
         
         label.textColor = UIColor.black
         self.view.addSubview(label)
@@ -105,7 +109,7 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         btn8.addTarget(self, action: #selector(save), for: UIControlEvents.touchUpInside)
         self.view.addSubview(btn8)
         
-        let p = PPTPaint.init(frame: CGRect.init(x: 200, y: 0, width: 300, height: 500))
+         p = PPTPaint.init(frame: CGRect.init(x: 200, y: 0, width: 300, height: 500))
         self.view.addSubview(p)
     }
 
@@ -115,18 +119,18 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
     }
     
     @objc func start(){
-        ScreenRecorder.default.start()
+        recorder.start()
     }
     
     @objc func end(){
-        ScreenRecorder.default.pause()
+        recorder.pause()
     }
     
     @objc func crash(){
 //        let a = [1,2]
 //        let b = a[3]
-        let a : NSArray = NSArray.init(objects: "1","2")
-        let c = a[4]
+//        let a : NSArray = NSArray.init(objects: "1","2")
+//        let c = a[4]
     }
     
     var player : AVPlayer? = nil
@@ -137,7 +141,7 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
         } catch  {
             print(error)
         }
-        let composition = ScreenRecorder.default.composition
+        let composition = recorder.composition
         let item = AVPlayerItem.init(asset: composition)
         self.player = AVPlayer.init(playerItem: item)
         player?.play()
@@ -148,26 +152,19 @@ class ViewController: UIViewController,ScreenRecorderDelegate {
     }
     
     @objc func deleteAll(){
-        ScreenRecorder.default.clear()
+        recorder.deleteAll()
     }
     
     @objc func deleteLast(){
-        ScreenRecorder.default.deleteLast()
+        recorder.deleteLast()
     }
     
     @objc func echo(btn:UIButton){
-        if useAudioType == 0{
-            useAudioType = 2
-            btn.setTitle("降噪开", for: UIControlState.normal)
-        }else if useAudioType == 2{
-            useAudioType = 0
-            btn.setTitle("降噪关", for: UIControlState.normal)
-        }
-//        useAudioUnit = !useAudioUnit
-//        btn.setTitle(useAudioUnit ? "降噪开" : "降噪关", for: UIControlState.normal)
+        
     }
     @objc func save(){
-        ScreenRecorder.default.generate(outFilePath: NSTemporaryDirectory() + "123.mp4")
+//        recorder.generateDelegate = self
+//        recorder.generate(outFilePath: NSTemporaryDirectory() + "123.mp4")
     }
 }
 

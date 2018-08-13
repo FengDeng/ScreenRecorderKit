@@ -18,10 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         NSSetUncaughtExceptionHandler { exception in
             
-            let message = "NSSetUncaughtExceptionHandler"
-            UserDefaults.standard.set(message, forKey: "ERROR_MESSAGE")
-            UserDefaults.standard.synchronize()
-            ScreenRecorder.default.pause()
+
             
         }
         
@@ -86,8 +83,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        print(">>>>>>>applicationWillTerminate")
-        ScreenRecorder.default.pause()
     }
 
 
