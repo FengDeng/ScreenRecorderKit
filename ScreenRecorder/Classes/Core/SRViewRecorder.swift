@@ -29,6 +29,12 @@ public class SRViewRecorder{
     fileprivate var writer : SRViewWriter
     //音视频片段资源管理
     fileprivate var _composition = AVMutableComposition()
+    //合并片段
+    fileprivate var exportSession : AVAssetExportSession? = nil
+    //合成片段定时器
+    fileprivate var exportTimer : Timer? = nil
+    //合成进度回调
+    fileprivate var exportProgress : ((CGFloat)->Void)?
     
     //暴露给外界播放
     public var composition : AVComposition{
@@ -159,6 +165,28 @@ extension SRViewRecorder{
             self.delegate?.onViewRecorderProgressing(seconds: sec > self.maxDuration ? self.maxDuration : sec)
             self.delegate?.onViewRecorderPartsChanged(assets: self.assets)
             self.delegate?.onViewRecorderPaused()
+        }
+    }
+    
+    public func combineParts(exportFilePath:String,exportProgress:((CGFloat)->Void)?,completed:((Error?)->Void)?){
+        if self.isRecording{return}
+        self.exportProgress = exportProgress
+        self.exportSession = AVAssetExportSession.init(asset: self.composition, presetName: AVAssetExportPresetHighestQuality)
+        self.exportSession?.outputURL = URL.init(fileURLWithPath: exportFilePath)
+        self.exportSession?.outputFileType = .mp4
+        self.exportTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(exportProgressHandle), userInfo: nil, repeats: true)
+        self.exportTimer?.fire()
+        self.exportSession?.exportAsynchronously {[weak self] in
+            guard let `self` = self else{return}
+            self.exportTimer?.invalidate()
+            self.exportTimer = nil
+            completed?(self.exportSession?.error)
+        }
+
+    }
+    @objc private func exportProgressHandle(){
+        if let progress = self.exportSession?.progress{
+            self.exportProgress?(CGFloat(progress))
         }
     }
 }
