@@ -10,12 +10,12 @@ import Foundation
 import UIKit
 import AVKit
 
-public protocol SRViewCaptureDelegate : class {
+protocol SRViewCaptureDelegate : class {
     func onViewCapturePixelBuffer(buffer:CVPixelBuffer,time:CMTime)
 }
 
 ///截屏 并生产CVPixelBuffer
-public class SRViewCapture {
+class SRViewCapture {
     
     private lazy var displayLink : CADisplayLink = {
         let link = CADisplayLink.init(target: self, selector: #selector(handleDisplayLink))
@@ -58,7 +58,7 @@ public class SRViewCapture {
     }
 }
 
-public extension SRViewCapture{
+extension SRViewCapture{
     func start(){
         self.displayLink.isPaused = false
     }

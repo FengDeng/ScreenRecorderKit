@@ -9,11 +9,11 @@
 import Foundation
 import AVKit
 
-public protocol SRMicCaptureDelegate: class {
+protocol SRMicCaptureDelegate: class {
     func onMicCaptureSampleBuffer(buffer:CMSampleBuffer)
 }
 /// 获取mic 用前置mic录音 后置mic降噪
-public class SRMicCapture : NSObject{
+class SRMicCapture : NSObject{
     public weak var delegate : SRMicCaptureDelegate?
     fileprivate let queue = DispatchQueue.init(label: "com.SRMicCapture.queue")
     lazy var session : AVCaptureSession = {
