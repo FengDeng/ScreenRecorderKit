@@ -20,22 +20,13 @@ class SRViewWriter {
     }
     var sourceTime : CMTime?
     var writer : AVAssetWriter? = nil
-    let videoInput : AVAssetWriterInput
-    let videoPixelAdaptor : AVAssetWriterInputPixelBufferAdaptor
-    let audioInput : AVAssetWriterInput
-    init(width:CGFloat,height:CGFloat) {
-        let videoSettings = [
-            AVVideoCodecKey : AVVideoCodecH264,
-            AVVideoWidthKey : width * UIScreen.main.scale,
-            AVVideoHeightKey : height * UIScreen.main.scale
-            ] as [String : Any]
-        self.videoInput = AVAssetWriterInput.init(mediaType: .video, outputSettings: videoSettings)
-        self.videoInput.expectsMediaDataInRealTime = true
-        self.videoPixelAdaptor = AVAssetWriterInputPixelBufferAdaptor.init(assetWriterInput: self.videoInput, sourcePixelBufferAttributes: nil)
-        
-        let config = AVOutputSettingsAssistant.init(preset: AVOutputSettingsPreset.preset1280x720)
-        self.audioInput = AVAssetWriterInput.init(mediaType: .audio, outputSettings: config?.audioSettings)
-        self.audioInput.expectsMediaDataInRealTime = true
+    var videoInput : AVAssetWriterInput!
+    var videoPixelAdaptor : AVAssetWriterInputPixelBufferAdaptor!
+    var audioInput : AVAssetWriterInput!
+    
+    weak var view : UIView?
+    init(view:UIView?) {
+        self.view = view
     }
     
     //写入buffer
@@ -60,7 +51,20 @@ class SRViewWriter {
 }
 
 extension SRViewWriter{
-    func start(url:URL) throws{
+    func start(size:CGSize,url:URL) throws{
+        guard let view = self.view else{return}
+        let videoSettings = [
+            AVVideoCodecKey : AVVideoCodecH264,
+            AVVideoWidthKey : size.width * UIScreen.main.scale,
+            AVVideoHeightKey : size.height * UIScreen.main.scale
+            ] as [String : Any]
+        self.videoInput = AVAssetWriterInput.init(mediaType: .video, outputSettings: videoSettings)
+        self.videoInput.expectsMediaDataInRealTime = true
+        self.videoPixelAdaptor = AVAssetWriterInputPixelBufferAdaptor.init(assetWriterInput: self.videoInput, sourcePixelBufferAttributes: nil)
+        
+        let config = AVOutputSettingsAssistant.init(preset: AVOutputSettingsPreset.preset1280x720)
+        self.audioInput = AVAssetWriterInput.init(mediaType: .audio, outputSettings: config?.audioSettings)
+        self.audioInput.expectsMediaDataInRealTime = true
         self.writer = try AVAssetWriter.init(outputURL: url, fileType: .mp4)
         self.writer?.add(self.videoInput)
         self.writer?.add(self.audioInput)

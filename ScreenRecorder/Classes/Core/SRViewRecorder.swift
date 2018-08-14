@@ -21,8 +21,8 @@ public protocol SRViewRecorderDelegate : class {
 public class SRViewRecorder{
     //操作队列 负责串联执行开始 暂停 写入等操作
     fileprivate let queue = OperationQueue.init()
-    //提供视频流
-    fileprivate var viewCapture : SRViewCapture
+    //提供视频流 暴露让外界设置是否截屏或者使用旧图片
+    public var viewCapture : SRViewCapture
     //提供音频流
     fileprivate var micCapture : SRMicCapture
     //负责把音频流视频流写成文件
@@ -70,7 +70,7 @@ public class SRViewRecorder{
         self.view = view
         self.viewCapture = SRViewCapture.init(view: view)
         self.micCapture = SRMicCapture.init()
-        self.writer = SRViewWriter.init(width: view.bounds.width, height: view.bounds.height)
+        self.writer = SRViewWriter.init(view: view)
         
         self.micCapture.delegate = self
         self.viewCapture.delegate = self
@@ -82,6 +82,8 @@ public class SRViewRecorder{
 
 public extension SRViewRecorder{
     public func start(){
+        //获取一下需要录制的视图的宽高
+        let size = self.view.bounds.size == CGSize.zero ? CGSize.init(width: 640, height: 540) : self.view.bounds.size
         //先检查下录音权限吧
         AVAudioSession.sharedInstance().requestRecordPermission { (succ) in
             if succ{
@@ -91,7 +93,7 @@ public extension SRViewRecorder{
                     self.viewCapture.start()
                     self.micCapture.start()
                     let file = self.directory + "/\(Int(Date().timeIntervalSince1970)).mp4"
-                    try? self.writer.start(url: URL.init(fileURLWithPath: file))
+                    try? self.writer.start(size:size,url: URL.init(fileURLWithPath: file))
                     DispatchQueue.main.async {[weak self] in
                         guard let `self` = self else{return}
                         self.delegate?.onViewRecorderStarted()

@@ -15,7 +15,7 @@ protocol SRViewCaptureDelegate : class {
 }
 
 ///截屏 并生产CVPixelBuffer
-class SRViewCapture {
+public class SRViewCapture {
     
     private lazy var displayLink : CADisplayLink = {
         let link = CADisplayLink.init(target: self, selector: #selector(handleDisplayLink))
@@ -36,25 +36,41 @@ class SRViewCapture {
     }
     
     
-    init(view:UIView) {
+    private init(view:UIView) {
         self.view = view
         self.queue.maxConcurrentOperationCount = 1
     }
     
     /// 当前录制的view
-    public weak var view : UIView? = UIApplication.shared.keyWindow
-    public weak var delegate : SRViewCaptureDelegate?
+    weak var view : UIView? = UIApplication.shared.keyWindow
+    weak var delegate : SRViewCaptureDelegate?
     @objc private func handleDisplayLink(){
         DispatchQueue.main.async {[weak self] in
             guard let `self` = self,let layer = self.view?.layer else{return}
             self.queue.addOperation {[weak self] in
                 guard let `self` = self else{return}
+                let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000000)
+                if let cap = self.capture,!self.isNeedCapture{
+                    self.delegate?.onViewCapturePixelBuffer(buffer: cap, time: now)
+                    return
+                }
                 if let buffer = layer.pixelBuffer(){
-                    let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000000)
+                    self.capture = buffer
                     self.delegate?.onViewCapturePixelBuffer(buffer: buffer, time: now)
                 }
             }
         }
+    }
+    
+    private var isNeedCapture = false //是否需要截图
+    private var capture : CVPixelBuffer?
+    public func setNeedCapture(cap:Bool){
+        let op = BlockOperation.init {[weak self] in
+            guard let `self` = self else{return}
+            self.isNeedCapture = cap
+        }
+        op.queuePriority = .veryHigh
+        self.queue.addOperation(op)
     }
 }
 
