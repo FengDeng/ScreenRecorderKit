@@ -13,8 +13,8 @@ protocol SRMicCaptureDelegate: class {
     func onMicCaptureSampleBuffer(buffer:CMSampleBuffer)
 }
 /// 获取mic 用前置mic录音 后置mic降噪
-class SRMicCapture : NSObject{
-    public weak var delegate : SRMicCaptureDelegate?
+public class SRMicCapture : NSObject{
+    weak var delegate : SRMicCaptureDelegate?
     fileprivate let queue = DispatchQueue.init(label: "com.SRMicCapture.queue")
     lazy var session : AVCaptureSession = {
         let session = AVCaptureSession.init()
@@ -27,10 +27,12 @@ class SRMicCapture : NSObject{
         return session
     }()
     
-    public override init() {
+    /// 音量回调 -160 ~ 0
+    public var metersCallback : ((Float)->Void)?
+    override init() {
         super.init()
     }
-    public func start(){
+    func start(){
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord, with: AVAudioSessionCategoryOptions.defaultToSpeaker)
             try AVAudioSession.sharedInstance().setActive(true)
@@ -39,13 +41,21 @@ class SRMicCapture : NSObject{
         }
         self.session.startRunning()
     }
-    public func pause(){
+    func pause(){
         self.session.stopRunning()
     }
+    
+    private var lastUpdateMetersTime = CACurrentMediaTime()
+
 }
 
 extension SRMicCapture : AVCaptureAudioDataOutputSampleBufferDelegate{
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        //-160 ~ 0
+        if let level = connection.audioChannels.first?.averagePowerLevel,CACurrentMediaTime() - lastUpdateMetersTime > 0.1{
+            self.lastUpdateMetersTime = CACurrentMediaTime()
+            self.metersCallback?(level)
+        }
         self.delegate?.onMicCaptureSampleBuffer(buffer: sampleBuffer)
     }
 }

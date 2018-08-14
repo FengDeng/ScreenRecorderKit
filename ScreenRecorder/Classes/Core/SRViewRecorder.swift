@@ -24,7 +24,7 @@ public class SRViewRecorder{
     //提供视频流 暴露让外界设置是否截屏或者使用旧图片
     public var viewCapture : SRViewCapture
     //提供音频流
-    fileprivate var micCapture : SRMicCapture
+    public var micCapture : SRMicCapture
     //负责把音频流视频流写成文件
     fileprivate var writer : SRViewWriter
     //音视频片段资源管理
@@ -93,7 +93,12 @@ public extension SRViewRecorder{
                     self.viewCapture.start()
                     self.micCapture.start()
                     let file = self.directory + "/\(Int(Date().timeIntervalSince1970)).mp4"
-                    try? self.writer.start(size:size,url: URL.init(fileURLWithPath: file))
+                    try? FileManager.default.removeItem(atPath: file)
+                    do{
+                        try self.writer.start(size:size,url: URL.init(fileURLWithPath: file))
+                    }catch{
+                        print("writer error: \(error)")
+                    }
                     DispatchQueue.main.async {[weak self] in
                         guard let `self` = self else{return}
                         self.delegate?.onViewRecorderStarted()
@@ -183,6 +188,7 @@ extension SRViewRecorder{
             guard let `self` = self else{return}
             self.exportTimer?.invalidate()
             self.exportTimer = nil
+            print("exportSessionError:\(self.exportSession?.error)")
             completed?(self.exportSession?.error)
         }
 

@@ -49,20 +49,27 @@ public class SRViewCapture {
             guard let `self` = self,let layer = self.view?.layer else{return}
             self.queue.addOperation {[weak self] in
                 guard let `self` = self else{return}
+                
                 let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000000)
                 if let cap = self.capture,!self.isNeedCapture{
                     self.delegate?.onViewCapturePixelBuffer(buffer: cap, time: now)
                     return
                 }
-                if let buffer = layer.pixelBuffer(){
+                
+                if let buffer = self.view?.cgImage()?.pixelBuffer(){
                     self.capture = buffer
                     self.delegate?.onViewCapturePixelBuffer(buffer: buffer, time: now)
                 }
+                /*
+                if let buffer = layer.pixelBuffer(){
+                    self.capture = buffer
+                    self.delegate?.onViewCapturePixelBuffer(buffer: buffer, time: now)
+                }*/
             }
         }
     }
     
-    private var isNeedCapture = false //是否需要截图
+    private var isNeedCapture = true //是否需要截图
     private var capture : CVPixelBuffer?
     public func setNeedCapture(cap:Bool){
         let op = BlockOperation.init {[weak self] in
