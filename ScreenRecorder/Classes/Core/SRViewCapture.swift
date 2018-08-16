@@ -55,8 +55,10 @@ public class SRViewCapture {
                     self.delegate?.onViewCapturePixelBuffer(buffer: cap, time: now)
                     return
                 }
-                
+                print("开始截屏:\(CACurrentMediaTime())")
+                //高清截屏 iphone6s 16ms截屏稳稳的  6p老了 不行了 需要50~100ms
                 if let buffer = self.view?.cgImage()?.pixelBuffer(){
+                    print("结束截屏:\(CACurrentMediaTime())")
                     self.capture = buffer
                     self.delegate?.onViewCapturePixelBuffer(buffer: buffer, time: now)
                 }
