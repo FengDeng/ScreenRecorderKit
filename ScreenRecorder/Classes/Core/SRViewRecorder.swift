@@ -56,14 +56,16 @@ public class SRViewRecorder{
     public private(set) var assets = [AVURLAsset]()
     //录制的view
     public let view : UIView
+    public let flag : String
     /// init
     ///
     /// - Parameters:
     ///   - view: record view
-    ///   - folderName: store recorded file
-    public init(view:UIView,folderName:String) {
+    ///   - flag: 标志位 下次初始化传入相同的 可以续录
+    public init(view:UIView,flag:String) {
+        self.flag = flag
         let documentPaths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory,FileManager.SearchPathDomainMask.userDomainMask, true)
-        self.directory = documentPaths[0] + "/SRViewRecorder/" + folderName
+        self.directory = documentPaths[0] + "/SRViewRecorder/" + flag
         if !FileManager.default.fileExists(atPath: self.directory){
             try? FileManager.default.createDirectory(atPath: self.directory, withIntermediateDirectories: true, attributes: nil)
         }
