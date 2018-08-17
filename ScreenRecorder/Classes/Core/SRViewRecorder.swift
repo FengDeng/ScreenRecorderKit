@@ -105,6 +105,7 @@ public extension SRViewRecorder{
                         guard let `self` = self else{return}
                         self.delegate?.onViewRecorderStarted()
                     }
+                    print("开始录制》》》》》》》》》》》》》")
                 }
                 op.queuePriority = .veryHigh//优先级最高
                 self.queue.addOperation(op)
@@ -120,6 +121,7 @@ public extension SRViewRecorder{
             self.viewCapture.pause()
             self.micCapture.pause()
             self.setupExsit()
+            print("暂停录制》》》》》》》》》》》》》")
         }
         op.queuePriority = .veryHigh//优先级最高
         self.queue.addOperation(op)
@@ -151,23 +153,23 @@ public extension SRViewRecorder{
 extension SRViewRecorder{
     //设置已经存在的
     fileprivate func setupExsit(){
-        do {
-            self._composition = AVMutableComposition.init()
-            let files = try FileManager.default.subpathsOfDirectory(atPath: self.directory)
-            self.assets = files.sorted(by: { (path1, path2) -> Bool in
-                if let filename1 = path1.components(separatedBy: "/").last?.components(separatedBy: ".").first,let filename2 = path2.components(separatedBy: "/").last?.components(separatedBy: ".").first{
-                    return (Int(filename1) ?? 0) < (Int(filename2) ?? 0)
-                }
-                return true
-            }).map { (path) -> AVURLAsset in
-                let asset = AVURLAsset.init(url: URL.init(fileURLWithPath: self.directory + "/" + path))
-                return asset
+        self._composition = AVMutableComposition.init()
+        let files = (try? FileManager.default.subpathsOfDirectory(atPath: self.directory)) ?? []
+        self.assets = files.sorted(by: { (path1, path2) -> Bool in
+            if let filename1 = path1.components(separatedBy: "/").last?.components(separatedBy: ".").first,let filename2 = path2.components(separatedBy: "/").last?.components(separatedBy: ".").first{
+                return (Int(filename1) ?? 0) < (Int(filename2) ?? 0)
             }
-            for asset in self.assets{
+            return true
+        }).map { (path) -> AVURLAsset in
+            let asset = AVURLAsset.init(url: URL.init(fileURLWithPath: self.directory + "/" + path))
+            return asset
+        }
+        for asset in self.assets{
+            do{
                 try self._composition.insertTimeRange(CMTimeRangeMake(kCMTimeZero, asset.duration), of: asset, at: kCMTimeInvalid)
+            }catch{
+                print("\(asset):::\(error)")
             }
-        } catch  {
-            print(error)
         }
         DispatchQueue.main.async {[weak self] in
             guard let `self` = self else{return}

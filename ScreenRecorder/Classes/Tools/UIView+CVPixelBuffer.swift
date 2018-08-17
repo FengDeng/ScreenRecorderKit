@@ -40,7 +40,7 @@ extension CALayer{
 extension UIView{
     func cgImage()->CGImage?{
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, true, UIScreen.main.scale)
-        self.drawHierarchy(in: self.frame, afterScreenUpdates: false)
+        self.drawHierarchy(in: self.bounds, afterScreenUpdates: false)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image?.cgImage
