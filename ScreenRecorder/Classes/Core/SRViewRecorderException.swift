@@ -21,6 +21,7 @@ class SRViewRecorderException{
     
     public static let `default` = SRViewRecorderException()
     fileprivate var recorders = [WeakBox<SRViewRecorder>]()
+    fileprivate var previousHandle : (@convention(c) (NSException) -> Swift.Void)?
     private init() {
         //没必要移除了 这是个单例
         //应用退到后台
@@ -28,8 +29,12 @@ class SRViewRecorderException{
         //录音被打断
         NotificationCenter.default.addObserver(self, selector: #selector(save), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
         
+        
+        //这里为了不污染别人也是用该函数，保存下别人的回调
+        self.previousHandle = NSGetUncaughtExceptionHandler()
         NSSetUncaughtExceptionHandler { (e) in
             SRViewRecorderException.default.save()
+            SRViewRecorderException.default.previousHandle?(e)
         }
     }
     

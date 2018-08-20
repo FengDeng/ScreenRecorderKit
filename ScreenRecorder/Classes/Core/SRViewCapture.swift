@@ -20,6 +20,7 @@ public class SRViewCapture {
     private lazy var displayLink : CADisplayLink = {
         let link = CADisplayLink.init(target: self, selector: #selector(handleDisplayLink))
         link.isPaused = true
+        link.frameInterval = frameInterval
         link.add(to: .main, forMode: .commonModes)
         return link
     }()
@@ -38,7 +39,8 @@ public class SRViewCapture {
     
     init(view:UIView) {
         self.view = view
-        self.queue.maxConcurrentOperationCount = 1
+        self.queue.maxConcurrentOperationCount = 2
+        self.queue.qualityOfService = .utility
     }
     
     /// 当前录制的view
@@ -47,6 +49,11 @@ public class SRViewCapture {
     @objc private func handleDisplayLink(){
         DispatchQueue.main.async {[weak self] in
             guard let `self` = self,let layer = self.view?.layer else{return}
+            print("截图任务数量：\(self.queue.operationCount)")
+            if self.queue.operationCount > 30{
+                self.queue.cancelAllOperations()
+                return
+            }
             self.queue.addOperation {[weak self] in
                 guard let `self` = self else{return}
                 
