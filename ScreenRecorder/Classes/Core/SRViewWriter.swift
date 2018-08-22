@@ -30,20 +30,38 @@ class SRViewWriter {
     }
     
     //写入buffer
+    var lastPixelTime : CMTime?
     func appendPixelBuffer(pixelBuffer:CVPixelBuffer,presentationTime:CMTime){
         guard let writer = self.writer,writer.status == .writing,self.videoInput.isReadyForMoreMediaData else {
             return
         }
-        let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000000)
+        let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 100000)
+        if let last = self.lastPixelTime{
+            //如果两帧之间的间隔小于16ms 不添加
+            if now.seconds - last.seconds < 0.016{
+                print("视频帧间隔太短 return。。。")
+                return
+            }
+        }
+        self.lastPixelTime = now
         self.videoPixelAdaptor.append(pixelBuffer, withPresentationTime: now)
     }
     //写入音频
+    var lastAudioTime : CMTime?
     func appendAudioSampleBuffer(buffer:CMSampleBuffer){
         guard let writer = self.writer,writer.status == .writing,self.audioInput.isReadyForMoreMediaData else {
             return
         }
         //从写下时间
         let now = CMTimeMakeWithSeconds(CACurrentMediaTime(), 1000000)
+        if let last = self.lastAudioTime{
+            //如果两帧之间的间隔小于16ms 不添加
+            if now.seconds - last.seconds < 0.016{
+                print("音频帧间隔太短 return。。。")
+                return
+            }
+        }
+        self.lastAudioTime = now
         CMSampleBufferSetOutputPresentationTimeStamp(buffer, now)
         self.audioInput.append(buffer)
     }

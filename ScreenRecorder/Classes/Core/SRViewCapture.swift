@@ -49,9 +49,7 @@ public class SRViewCapture {
     @objc private func handleDisplayLink(){
         DispatchQueue.main.async {[weak self] in
             guard let `self` = self,let layer = self.view?.layer else{return}
-            print("截图任务数量：\(self.queue.operationCount)")
-            if self.queue.operationCount > 30{
-                self.queue.cancelAllOperations()
+            if self.queue.operationCount > 0{
                 return
             }
             self.queue.addOperation {[weak self] in
@@ -62,10 +60,10 @@ public class SRViewCapture {
                     self.delegate?.onViewCapturePixelBuffer(buffer: cap, time: now)
                     return
                 }
-                print("开始截屏:\(CACurrentMediaTime())")
+                //print("开始截屏:\(CACurrentMediaTime())")
                 //高清截屏 iphone6s 16ms截屏稳稳的  6p老了 不行了 需要50~100ms
                 if let buffer = self.view?.cgImage()?.pixelBuffer(){
-                    print("结束截屏:\(CACurrentMediaTime())")
+                    //print("结束截屏:\(CACurrentMediaTime())")
                     self.capture = buffer
                     self.delegate?.onViewCapturePixelBuffer(buffer: buffer, time: now)
                 }
