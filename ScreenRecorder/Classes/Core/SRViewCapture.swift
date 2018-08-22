@@ -39,7 +39,7 @@ public class SRViewCapture {
     
     init(view:UIView) {
         self.view = view
-        self.queue.maxConcurrentOperationCount = 2
+        self.queue.maxConcurrentOperationCount = 1
         self.queue.qualityOfService = .utility
     }
     
