@@ -91,6 +91,7 @@ public extension SRViewRecorder{
             if succ{
                 let op = BlockOperation.init {[weak self] in
                     guard let `self` = self,!self.isRecording,self.maxDuration > self.duration else{return}
+                    UIApplication.shared.isIdleTimerDisabled = true
                     self.isRecording = true
                     self.viewCapture.start()
                     self.micCapture.start()
@@ -116,6 +117,7 @@ public extension SRViewRecorder{
     public func pause(){
         let op = BlockOperation.init {[weak self] in
             guard let `self` = self,self.isRecording else{return}
+            UIApplication.shared.isIdleTimerDisabled = false
             self.isRecording = false
             self.writer.stop()
             self.viewCapture.pause()
