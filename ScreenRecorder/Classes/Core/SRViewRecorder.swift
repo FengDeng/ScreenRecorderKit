@@ -64,11 +64,8 @@ public class SRViewRecorder{
     ///   - flag: 标志位 下次初始化传入相同的 可以续录
     public init(view:UIView,flag:String) {
         self.flag = flag
-        let documentPaths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory,FileManager.SearchPathDomainMask.userDomainMask, true)
-        self.directory = documentPaths[0] + "/SRViewRecorder/" + flag
-        if !FileManager.default.fileExists(atPath: self.directory){
-            try? FileManager.default.createDirectory(atPath: self.directory, withIntermediateDirectories: true, attributes: nil)
-        }
+        self.directory = SRRecorderFileManager.default.directory(with: flag)
+
         self.view = view
         self.viewCapture = SRViewCapture.init(view: view)
         self.micCapture = SRMicCapture.init()
@@ -156,14 +153,8 @@ extension SRViewRecorder{
     //设置已经存在的
     fileprivate func setupExsit(){
         self._composition = AVMutableComposition.init()
-        let files = (try? FileManager.default.subpathsOfDirectory(atPath: self.directory)) ?? []
-        self.assets = files.sorted(by: { (path1, path2) -> Bool in
-            if let filename1 = path1.components(separatedBy: "/").last?.components(separatedBy: ".").first,let filename2 = path2.components(separatedBy: "/").last?.components(separatedBy: ".").first{
-                return (Int(filename1) ?? 0) < (Int(filename2) ?? 0)
-            }
-            return true
-        }).map { (path) -> AVURLAsset in
-            let asset = AVURLAsset.init(url: URL.init(fileURLWithPath: self.directory + "/" + path))
+        self.assets = SRRecorderFileManager.default.files(with: self.flag).map { (path) -> AVURLAsset in
+            let asset = AVURLAsset.init(url: URL.init(fileURLWithPath: path))
             return asset
         }
         for asset in self.assets{

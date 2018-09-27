@@ -23,6 +23,7 @@
 		9FAD39F52109D1F200118F9A /* ScreenRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD39F42109D1F200118F9A /* ScreenRecorderTests.swift */; };
 		9FAD3A002109D1F200118F9A /* ScreenRecorderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD39FF2109D1F200118F9A /* ScreenRecorderUITests.swift */; };
 		9FAD3A27211164D400118F9A /* PPTPaint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAD3A26211164D400118F9A /* PPTPaint.swift */; };
+		9FCA4545215CAAE900EEDD58 /* SRRecorderFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCA4544215CAAE900EEDD58 /* SRRecorderFileManager.swift */; };
 		B3457C799A746111BDFCEFEF /* Pods_ScreenRecorderTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE6CD1502512EBF5611AED43 /* Pods_ScreenRecorderTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		9FAD39FF2109D1F200118F9A /* ScreenRecorderUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRecorderUITests.swift; sourceTree = "<group>"; };
 		9FAD3A012109D1F200118F9A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9FAD3A26211164D400118F9A /* PPTPaint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PPTPaint.swift; sourceTree = "<group>"; };
+		9FCA4544215CAAE900EEDD58 /* SRRecorderFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRRecorderFileManager.swift; sourceTree = "<group>"; };
 		BE6CD1502512EBF5611AED43 /* Pods_ScreenRecorderTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ScreenRecorderTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD403774D4BAE47BEC80CDB3 /* Pods-ScreenRecorderUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenRecorderUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScreenRecorderUITests/Pods-ScreenRecorderUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,6 +143,7 @@
 				9F099045211D420100CE2212 /* SRViewRecorder.swift */,
 				9F099041211D2DAB00CE2212 /* SRViewWriter.swift */,
 				9F1274872121864C00A9DB27 /* SRViewRecorderException.swift */,
+				9FCA4544215CAAE900EEDD58 /* SRRecorderFileManager.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -401,6 +404,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FCA4545215CAAE900EEDD58 /* SRRecorderFileManager.swift in Sources */,
 				9FAD39E22109D1F100118F9A /* ViewController.swift in Sources */,
 				9F37170F211BDD9900AE5665 /* UIView+CVPixelBuffer.swift in Sources */,
 				9F099046211D420100CE2212 /* SRViewRecorder.swift in Sources */,

@@ -44,7 +44,7 @@ class ViewController: UIViewController,SRViewRecorderDelegate {
     var p : PPTPaint!
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.recorder = SRViewRecorder.init(view: self.view!, folderName: "1234")
+        self.recorder = SRViewRecorder.init(view: self.view!, flag: "1234")
         // Do any additional setup after loading the view, typically from a nib.
         recorder.delegate = self
 
