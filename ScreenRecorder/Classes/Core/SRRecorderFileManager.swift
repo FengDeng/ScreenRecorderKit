@@ -9,7 +9,7 @@
 import Foundation
 
 public class SRRecorderFileManager{
-    static let `default` = SRRecorderFileManager()
+    public static let `default` = SRRecorderFileManager()
     
     public var folder : String = {
         let documentPaths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory,FileManager.SearchPathDomainMask.userDomainMask, true)
@@ -44,5 +44,10 @@ public class SRRecorderFileManager{
             return directory + "/" + str
         }
         return fs
+    }
+    
+    public func removeAllFiles(with flag:String){
+        let d = self.directory(with: flag)
+        try? FileManager.default.removeItem(atPath: d)
     }
 }
